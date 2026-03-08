@@ -1,59 +1,40 @@
+const extApi = typeof chrome !== 'undefined' ? chrome : browser;
 let course = '';
 let faculty_slot = '';
 let module_wise = true;
-let file_name = {};
 let data = {};
 let time_last = new Date();
-let det_file_name = 'table_name';
-
-chrome.runtime.onMessage.addListener((request) => {
-	// console.log(request);
-
-	if (request.message === 'table_name') {
-		det_file_name = 'table_name';
-	}
-	if (request.message === 'fac_upload_name') {
-		det_file_name = 'fac_upload_name';
-	}
-	if (request.message === 'course-page-data') {
-		data = request.data;
-	}
-	if (request.message === 'assignment-page-data') {
-		// console.log('Request Recieved - Assignment');
-		data = request.data;
-	}
-});
 
 let set_time_last = (time) => {
 	time_last = time;
 };
 const returnMessage = (MessageToReturn) => {
-	chrome.tabs.query({ active: true }, (tab) => {
-		let i;
-		for (i = 0; i < tab.length; i++) {
-			if (tab[i].url.includes('vtop')) {
-				break;
-			}
-		}
-		chrome.tabs.sendMessage(tab[i].id || 0, {
+	extApi.tabs.query({ active: true, currentWindow: true }, (tab) => {
+		const targetTab = tab.find((currentTab) =>
+			(currentTab.url || '').includes('vtop'),
+		);
+		if (!targetTab || typeof targetTab.id !== 'number') return;
+		extApi.tabs.sendMessage(targetTab.id, {
 			message: MessageToReturn,
 		});
 	});
 };
 
 const trigger_download = (request) => {
+	if (!request || !request.data) return;
 	course = request.data.course;
 	faculty_slot = request.data.faculty_slot;
 	module_wise = request.data.module_wise;
 	request.data.link_data.forEach((link) => {
 		fetch(link.url, { method: 'HEAD', credentials: 'include' })
 			.then((response) => {
+				const contentType = response.headers.get('Content-Type') || '';
 				if (
 					response.ok &&
-					response.headers.get('Content-Type').includes('pdf')
+					contentType.includes('pdf')
 				) {
 					// console.log(response.text);
-					chrome.downloads.download({
+					extApi.downloads.download({
 						url: link.url,
 						conflictAction: 'uniquify',
 					});
@@ -67,7 +48,32 @@ const trigger_download = (request) => {
 	});
 };
 
-chrome.downloads.onDeterminingFilename.addListener((item, suggest) => {
+extApi.runtime.onMessage.addListener((request, sender, sendResponse) => {
+	if (!request || typeof request.message !== 'string') return;
+
+	if (
+		request.message === 'course-page-data' ||
+		request.message === 'assignment-page-data'
+	) {
+		data = request.data || {};
+		trigger_download(request);
+		return;
+	}
+
+	if (request.message === 'logout') {
+		extApi.storage.sync.set({ token: null });
+		return;
+	}
+
+	if (request.message === 'login') {
+		extApi.storage.sync.set({ token: null }, () => {
+			sendResponse(false);
+		});
+		return true;
+	}
+});
+
+extApi.downloads.onDeterminingFilename.addListener((item, suggest) => {
 	// console.log('Item');
 	// console.log(item);
 	if (
@@ -167,7 +173,7 @@ function sleep(ms) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-chrome.webRequest.onCompleted.addListener(
+extApi.webRequest.onCompleted.addListener(
 	async (details) => {
 		let link = details['url'];
 		time_last = new Date();
@@ -210,52 +216,8 @@ chrome.webRequest.onCompleted.addListener(
 	},
 );
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-	try {
-		if (request.message.course !== '') trigger_download(request);
-	} catch {
-		if (request.message == 'login') {
-			chrome.identity.getAuthToken(
-				{ interactive: true },
-				(auth_token) => {
-					chrome.storage.sync.set({ token: auth_token });
-					if (auth_token) {
-						chrome.identity.getProfileUserInfo((userInfo) => {
-							let email = userInfo.email;
-							chrome.notifications.create('Sign In', {
-								type: 'basic',
-								iconUrl: './../assets/icons/img_128.png',
-								title: 'Sign In',
-								message: `You are successfully signed in with ${email}`,
-							});
-						});
-						sendResponse(true);
-					}
-					return true;
-				},
-			);
-		} else if (request.message === 'logout') {
-			user_signed_in = false;
-			chrome.storage.sync.get(['token'], (token) => {
-				chrome.identity.removeCachedAuthToken(
-					{ token: token.token },
-					() => {
-						chrome.storage.sync.set({ token: null });
-					},
-				);
-			});
-			chrome.notifications.create('Sign Out', {
-				type: 'basic',
-				iconUrl: './../assets/icons/img_128.png',
-				title: 'Sign Out',
-				message: 'Signed out from google',
-			});
-		}
-	}
-});
-
-chrome.alarms.create({ periodInMinutes: 0.5 });
-chrome.alarms.onAlarm.addListener(() => {
+extApi.alarms.create({ periodInMinutes: 0.5 });
+extApi.alarms.onAlarm.addListener(() => {
 	let a;
 	let time_nw = new Date();
 });
