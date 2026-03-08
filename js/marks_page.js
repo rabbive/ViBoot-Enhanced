@@ -1,3 +1,5 @@
+const extApi = typeof chrome !== 'undefined' ? chrome : browser;
+
 let modify_marks_page = () => {
 	let other = false,
 		colspan = 8;
@@ -143,7 +145,7 @@ let modify_marks_page = () => {
 		}
 	}
 };
-chrome.runtime.onMessage.addListener((request) => {
+extApi.runtime.onMessage.addListener((request) => {
 	if (request.message === 'mark_view_page') {
 		try {
 			modify_marks_page();

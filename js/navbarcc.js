@@ -1,3 +1,5 @@
+const extApi = typeof chrome !== 'undefined' ? chrome : browser;
+
 let nav_barcc = () => {
 	if (document.URL.match('vtopcc') != null) {
 		let span = document.createElement('div');
@@ -22,7 +24,7 @@ let nav_barcc = () => {
 	}
 };
 
-chrome.runtime.onMessage.addListener((request) => {
+extApi.runtime.onMessage.addListener((request) => {
 	if (request.message === 'vtopcc_nav_bar') {
 		try {
 			nav_barcc();

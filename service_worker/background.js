@@ -73,6 +73,8 @@ extApi.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	}
 });
 
+// onDeterminingFilename is Chrome-only; Firefox does not support it
+if (extApi.downloads.onDeterminingFilename) {
 extApi.downloads.onDeterminingFilename.addListener((item, suggest) => {
 	// console.log('Item');
 	// console.log(item);
@@ -168,6 +170,7 @@ extApi.downloads.onDeterminingFilename.addListener((item, suggest) => {
 		}
 	}
 });
+}
 
 function sleep(ms) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
@@ -216,8 +219,3 @@ extApi.webRequest.onCompleted.addListener(
 	},
 );
 
-extApi.alarms.create({ periodInMinutes: 0.5 });
-extApi.alarms.onAlarm.addListener(() => {
-	let a;
-	let time_nw = new Date();
-});

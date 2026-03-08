@@ -1,4 +1,6 @@
-const isDevMode = false; // Set to false to disable logs
+const extApi = typeof chrome !== 'undefined' ? chrome : browser;
+
+const isDevMode = false;
 
 function log(...args) {
 	if (isDevMode) {
@@ -462,7 +464,7 @@ function displayCourseWiseTable(entries) {
 window.checkAllCoursesForOnDuty = checkAllCoursesForOnDuty;
 
 // Keep the Chrome message listener for backward compatibility (if needed from popup)
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+extApi.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	if (request.action === 'generateODSummary') {
 		checkAllCoursesForOnDuty()
 			.then((results) => {

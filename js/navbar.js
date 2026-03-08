@@ -1,3 +1,5 @@
+const extApi = typeof chrome !== 'undefined' ? chrome : browser;
+
 const nav_bar_change = () => {
 	let items_list = Array.from(document.getElementsByTagName('a')).filter(
 		(e) => e.dataset.url,
@@ -23,23 +25,23 @@ const nav_bar_change = () => {
 	span.innerHTML = `
     <span class="navbar-text px-0 px-sm-2 mx-0 mx-sm-1 text-light" ></span>
 
-    <button class="btn btn-primary border-primary shadow-none" type="button" style="background: rgba(13,110,253,0);border-style: none;" onclick="Array.from(document.getElementsByTagName('a')).filter((e) => e.dataset.url)[${attendance}].click()" id="nav_short">Attendance</button>
+    <button class="btn btn-primary border-primary shadow-none nav-short" type="button" style="background: rgba(13,110,253,0);border-style: none;" onclick="Array.from(document.getElementsByTagName('a')).filter((e) => e.dataset.url)[${attendance}].click()">Attendance</button>
 
-   <button class="btn btn-primary border-primary shadow-none" type="button" style="background: rgba(13,110,253,0);border-style: none;" onclick="Array.from(document.getElementsByTagName('a')).filter((e) => e.dataset.url)[${marks}].click();" id="nav_short">Marks</button>
+   <button class="btn btn-primary border-primary shadow-none nav-short" type="button" style="background: rgba(13,110,253,0);border-style: none;" onclick="Array.from(document.getElementsByTagName('a')).filter((e) => e.dataset.url)[${marks}].click();">Marks</button>
 
-   <button class="btn btn-primary border-primary shadow-none" type="button" style="background: rgba(13,110,253,0);border-style: none;" onclick="Array.from(document.getElementsByTagName('a')).filter((e) => e.dataset.url)[${calendar}].click()" id="nav_short">Calendar</button>
+   <button class="btn btn-primary border-primary shadow-none nav-short" type="button" style="background: rgba(13,110,253,0);border-style: none;" onclick="Array.from(document.getElementsByTagName('a')).filter((e) => e.dataset.url)[${calendar}].click()">Calendar</button>
 
-    <button class="btn btn-primary border-primary shadow-none" type="button" style="background: rgba(13,110,253,0);border-style: none;" onclick="Array.from(document.getElementsByTagName('a')).filter((e) => e.dataset.url)[${course_page}].click()" id="nav_short">Course Page</button>
+    <button class="btn btn-primary border-primary shadow-none nav-short" type="button" style="background: rgba(13,110,253,0);border-style: none;" onclick="Array.from(document.getElementsByTagName('a')).filter((e) => e.dataset.url)[${course_page}].click()">Course Page</button>
 
 
     `;
 	if (time_table)
-		span.innerHTML += `<button class="btn btn-primary border-primary shadow-none" type="button" style="background: rgba(13,110,253,0);border-style: none;" onclick="Array.from(document.getElementsByTagName('a')).filter((e) => e.dataset.url)[${time_table}].click()" id="nav_short">Time Table</button>`;
+		span.innerHTML += `<button class="btn btn-primary border-primary shadow-none nav-short" type="button" style="background: rgba(13,110,253,0);border-style: none;" onclick="Array.from(document.getElementsByTagName('a')).filter((e) => e.dataset.url)[${time_table}].click()">Time Table</button>`;
 	else
-		span.innerHTML += `<button class="btn btn-primary border-primary shadow-none" type="button" style="background: rgba(13,110,253,0);border-style: none;" onclick="Array.from(document.getElementsByTagName('a')).filter((e) => e.dataset.url)[${time_table}].click()" id="nav_short">Calendar</button>`;
+		span.innerHTML += `<button class="btn btn-primary border-primary shadow-none nav-short" type="button" style="background: rgba(13,110,253,0);border-style: none;" onclick="Array.from(document.getElementsByTagName('a')).filter((e) => e.dataset.url)[${time_table}].click()">Calendar</button>`;
 	nav[0].insertBefore(span, nav[0].children[0]);
 
-	let buttons = document.querySelectorAll('[id=nav_short]');
+	let buttons = document.querySelectorAll('.nav-short');
 	buttons.forEach((button) => {
 		button.addEventListener('click', () => {
 			buttons.forEach((but) => {
@@ -58,12 +60,9 @@ const clear_navbar = () => {
 	document.getElementById('navbar').remove();
 };
 
-function sleep(ms) {
-	return new Promise((resolve) => setTimeout(resolve, ms));
-}
 let flag = false;
 
-chrome.runtime.onMessage.addListener((request) => {
+extApi.runtime.onMessage.addListener((request) => {
 	if (request.message === 'nav_bar_change') {
 		try {
 			if (

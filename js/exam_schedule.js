@@ -1,3 +1,5 @@
+const extApi = typeof chrome !== 'undefined' ? chrome : browser;
+
 let error_code_exam = 0;
 let is_venue = (i) => {
 	i++;
@@ -22,7 +24,7 @@ function sleep(ms) {
 
 let exam_schedule_sync = () => {
 	let row = document.getElementsByTagName('tbody')[0].rows;
-	chrome.storage.sync.get(['token'], (token) => {
+	extApi.storage.sync.get(['token'], (token) => {
 		if (token.token != null) {
 			for (let i = 0; i < row.length; i++) {
 				if (
@@ -116,8 +118,8 @@ let exam_schedule_sync = () => {
 				return [start_date_time, end_date_time];
 			};
 
-			let sync_dates = (details, j) => {
-				chrome.storage.sync.get(['token'], (token) => {
+		let sync_dates = (details, j) => {
+			extApi.storage.sync.get(['token'], (token) => {
 					var map = {
 						Jan: '01',
 						Feb: '02',
@@ -202,7 +204,7 @@ let exam_schedule_sync = () => {
 						alert(
 							'Please Re-login with your Google account and refresh the page',
 						);
-						chrome.storage.sync.set({ token: null });
+						extApi.storage.sync.set({ token: null });
 						error_code_exam = 0;
 						break;
 					}
@@ -226,7 +228,7 @@ let exam_schedule_sync = () => {
 	});
 };
 
-chrome.runtime.onMessage.addListener((request) => {
+extApi.runtime.onMessage.addListener((request) => {
 	if (request.message === 'exam_schedule') {
 		try {
 			exam_schedule_sync();
