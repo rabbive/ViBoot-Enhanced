@@ -1,3 +1,5 @@
+const extApi = typeof chrome !== 'undefined' ? chrome : browser;
+
 const get_time_table_details = () => {
 	let details = {
 		courseCode: [],
@@ -356,10 +358,6 @@ let calendar_tt = (
 	}
 };
 
-function sleep(ms) {
-	return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 function format_date(date) {
 	date = new Date(date);
 	return (
@@ -421,7 +419,7 @@ const copyBtn = (details) => {
 const sync_calender_tt = () => {
 	let details = get_time_table_details();
 	try {
-		chrome.storage.sync.get(['token'], (token) => {
+		extApi.storage.sync.get(['token'], (token) => {
 			if (token.token != null) {
 				add_buttons();
 				let sync_btn = document.getElementById('sync_dates_btn');
@@ -478,7 +476,7 @@ const sync_calender_tt = () => {
 								alert(
 									'Please Re-login with your Google account and refresh the page',
 								);
-								chrome.storage.sync.set({ token: null });
+								extApi.storage.sync.set({ token: null });
 								error_code1 = 0;
 								break;
 							}
@@ -537,7 +535,7 @@ const sync_calender_tt = () => {
 	}
 };
 
-chrome.runtime.onMessage.addListener((request) => {
+extApi.runtime.onMessage.addListener((request) => {
 	if (request.message === 'time_table') {
 		try {
 			sync_calender_tt();

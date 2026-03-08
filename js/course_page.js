@@ -1,9 +1,11 @@
+const extApi = typeof chrome !== 'undefined' ? chrome : browser;
+
 let reg_no;
 let moduleWise = true;
 
 // Sends the message to service worker
 const trigger_download = (downloads) => {
-	chrome.runtime.sendMessage({
+	extApi.runtime.sendMessage({
 		message: 'course-page-data',
 		data: downloads,
 	});
@@ -195,7 +197,7 @@ const modify_page = () => {
 	//   // document.getElementsByClassName("table")[2].insertAdjacentElement("beforebegin", dropdown_file);
 	//   newDiv.appendChild(dropdown_file);
 
-	chrome.storage.sync.set({ file_name: 'table_name' });
+	extApi.storage.sync.set({ file_name: 'table_name' });
 
 	//   //Type of selection for check boxes
 	//   let dropdown_hover = document.createElement("select");
@@ -282,47 +284,12 @@ const modify_page = () => {
 		ref_material[i].setAttribute('title', i + 1);
 	}
 
-	document
-		.getElementsByClassName(
-			'table table-bordered table-hover responsive',
-		)[0]
-		.insertAdjacentElement('beforebegin', newDiv);
-
-	document.getElementById('drop_file').addEventListener('change', () => {
-		let file_name_drop = document.getElementById('drop_file').value;
-		if (file_name_drop === 'fac_upload_name') {
-			chrome.runtime.sendMessage({
-				message: 'fac_upload_name',
-			});
-		} else if (file_name_drop === 'table_name') {
-			chrome.runtime.sendMessage({
-				message: 'table_name',
-			});
-		}
-	});
-
-	document.getElementById('type_drop').addEventListener('change', () => {
-		let checkbox1 = Array.from(document.querySelectorAll('.check-input'));
-		let val = document.getElementById('type_drop').value;
-
-		if (val == 'hover') {
-			checkbox1.forEach((box) => {
-				box.addEventListener('mouseover', change_type);
-			});
-		} else if (val == 'click') {
-			checkbox1.forEach((box, index) => {
-				box.removeEventListener('mouseover', change_type);
-			});
-		}
-	});
-
-	select_all_elem.addEventListener('click', () => {
-		const checkedValue = document.getElementById('select_all').checked;
-		let checkbox = Array.from(document.querySelectorAll('.check-input'));
-		checkbox.forEach((boxes) => {
-			boxes.checked = checkedValue;
-		});
-	});
+	const responsiveTable = document.getElementsByClassName(
+		'table table-bordered table-hover responsive',
+	)[0];
+	if (responsiveTable) {
+		responsiveTable.insertAdjacentElement('beforebegin', newDiv);
+	}
 
 	let footer = document.getElementsByClassName('form-group col-md-4')[2];
 	footer.className = 'form-group col-md-6';
@@ -340,7 +307,7 @@ const modify_page = () => {
 	footer.appendChild(download_selected_d);
 };
 
-chrome.runtime.onMessage.addListener((request) => {
+extApi.runtime.onMessage.addListener((request) => {
 	if (request.message === 'course_page_change') {
 		try {
 			const loader = setInterval(function () {

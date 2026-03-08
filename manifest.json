@@ -4,6 +4,11 @@
 	"description": "Enhance your VTOP in one-click.",
 	"version": "1.5",
 	"author": "Arsh Saxena and Aishik Tokdar",
+	"icons": {
+		"16": "assets/icons/img_16.png",
+		"48": "assets/icons/img_48.png",
+		"128": "assets/icons/img_128.png"
+	},
 	"browser_specific_settings": {
 		"gecko": {
 			"id": "viboot-enhanced@vitrendz.com"
@@ -46,6 +51,11 @@
 		}
 	],
 	"browser_action": {
+		"default_icon": {
+			"16": "assets/icons/img_16.png",
+			"48": "assets/icons/img_48.png",
+			"128": "assets/icons/img_128.png"
+		},
 		"default_popup": "html/popup.html",
 		"default_title": "ViBoot Enhanced"
 	}
