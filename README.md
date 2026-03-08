@@ -1,5 +1,10 @@
 # 🎉 ViBoot-Enhanced - Experience VTOP Like Never Before
 
+## Browser-specific guides
+
+- Firefox guide: [README_FIREFOX.md](./README_FIREFOX.md)
+- Safari guide: [README_SAFARI.md](./README_SAFARI.md)
+
 ## 🚀 Getting Started
 
 Welcome to ViBoot-Enhanced! This tool helps you have a better experience with VTOP in one click. Whether you're tracking grades or managing your schedule, you’ll enjoy a smoother interface.
