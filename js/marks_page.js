@@ -149,6 +149,8 @@ extApi.runtime.onMessage.addListener((request) => {
 	if (request.message === 'mark_view_page') {
 		try {
 			modify_marks_page();
-		} catch (error) {}
+		} catch (error) {
+			console.error('ViBoot: Error in marks_page handler:', error);
+		}
 	}
 });

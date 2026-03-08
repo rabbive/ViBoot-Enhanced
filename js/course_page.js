@@ -335,6 +335,8 @@ extApi.runtime.onMessage.addListener((request) => {
 					modify_page();
 				}
 			}, 500);
-		} catch (error) {}
+		} catch (error) {
+			console.error('ViBoot: Error in course_page handler:', error);
+		}
 	}
 });

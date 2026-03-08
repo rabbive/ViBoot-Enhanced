@@ -82,7 +82,7 @@ extApi.runtime.onMessage.addListener((request) => {
 				nav_bar_change();
 			}
 		} catch (error) {
-			// console.log(error);
+			console.error('ViBoot: Error in navbar handler:', error);
 		}
 	}
 });
@@ -100,5 +100,3 @@ if (
 	window.addEventListener('load', nav_bar_change, false);
 	flag = true;
 }
-
-let input = document.createElement('input');

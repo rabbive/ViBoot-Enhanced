@@ -184,9 +184,13 @@ let exam_schedule_sync = () => {
 								} else if (data.error.code == 403) {
 									sync_dates(details, j);
 								}
-							} catch {}
-						})
-						.catch((err) => {});
+						} catch (e) {
+							console.error('ViBoot: Error parsing exam sync response:', e);
+						}
+					})
+						.catch((err) => {
+							console.error('ViBoot: Error in exam date sync fetch:', err);
+						});
 				});
 			};
 
@@ -232,6 +236,8 @@ extApi.runtime.onMessage.addListener((request) => {
 	if (request.message === 'exam_schedule') {
 		try {
 			exam_schedule_sync();
-		} catch (error) {}
+		} catch (error) {
+			console.error('ViBoot: Error in exam_schedule handler:', error);
+		}
 	}
 });

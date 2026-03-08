@@ -143,7 +143,9 @@ extApi.runtime.onMessage.addListener((request) => {
 					addCheckODButton();
 				}
 			}, 1000);
-		} catch (error) {}
+		} catch (error) {
+			console.error('ViBoot: Error in view_attendance handler:', error);
+		}
 	}
 });
 
@@ -220,27 +222,36 @@ function hideProcessingMessage() {
 	}
 }
 
-// Calculate total attended classes, total classes, and overall percentage
+function getAttendanceColumnIndices() {
+	const href = document.location.href;
+	if (href.includes('vtopcc')) {
+		return { attended: 19, total: 21 };
+	}
+	return { attended: 11, total: 13 };
+}
+
 function calculateAttendanceSummary() {
 	const body = document.getElementsByTagName('tbody')[0];
 	const bodyRows = body.querySelectorAll('tr');
+	const { attended, total } = getAttendanceColumnIndices();
 
 	let totalAttendedClasses = 0;
 	let totalClasses = 0;
 
 	bodyRows.forEach((row) => {
 		const attendedClasses = parseFloat(
-			row.childNodes[19]?.innerText || '0',
+			row.childNodes[attended]?.innerText || '0',
 		);
-		const classes = parseFloat(row.childNodes[21]?.innerText || '0');
-		totalAttendedClasses += attendedClasses;
-		totalClasses += classes;
+		const classes = parseFloat(
+			row.childNodes[total]?.innerText || '0',
+		);
+		if (!isNaN(attendedClasses)) totalAttendedClasses += attendedClasses;
+		if (!isNaN(classes)) totalClasses += classes;
 	});
 
-	const overallPercentage = (
-		(totalAttendedClasses / totalClasses) *
-		100
-	).toFixed(2);
+	const overallPercentage = totalClasses > 0
+		? ((totalAttendedClasses / totalClasses) * 100).toFixed(2)
+		: '0.00';
 	const totalBunkedClasses = totalClasses - totalAttendedClasses;
 
 	return {
@@ -249,20 +260,6 @@ function calculateAttendanceSummary() {
 		overallPercentage,
 		totalBunkedClasses,
 	};
-}
-
-function sortODSummaryTable() {
-	const odTable = document.querySelector('#odSummaryTable tbody');
-	if (!odTable) return;
-
-	const rows = Array.from(odTable.rows);
-	rows.sort((a, b) => {
-		const dateA = new Date(a.cells[0].innerText.trim());
-		const dateB = new Date(b.cells[0].innerText.trim());
-		return dateA - dateB;
-	});
-
-	rows.forEach((row) => odTable.appendChild(row));
 }
 
 function displayAttendanceSummary() {
@@ -388,18 +385,3 @@ function displayAttendanceSummary() {
 	}
 }
 
-function showODTableDirectly() {
-	const odPlaceholder = document.getElementById('odProcessingMessage');
-	if (odPlaceholder) odPlaceholder.remove();
-	const odTable = document.querySelector('#odSummaryTable');
-	if (odTable) {
-		odTable.style.display = 'table';
-		const checkODButton = document.getElementById('checkODButton');
-		if (checkODButton) checkODButton.remove();
-	}
-}
-
-checkAllCoursesForOnDuty = async () => {
-	showODTableDirectly();
-	displayAttendanceSummary();
-};

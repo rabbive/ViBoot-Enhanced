@@ -349,12 +349,16 @@ let calendar_tt = (
 							day_count,
 						);
 					}
-				} catch {}
-				return true;
-			})
-			.catch((err) => {});
+			} catch (e) {
+				console.error('ViBoot: Error parsing calendar sync response:', e);
+			}
+			return true;
+		})
+			.catch((err) => {
+				console.error('ViBoot: Error in timetable calendar fetch:', err);
+			});
 	} catch (err) {
-		// console.log(err);
+		console.error('ViBoot: Error in calendar_tt:', err);
 	}
 };
 
@@ -531,7 +535,7 @@ const sync_calender_tt = () => {
 			}
 		});
 	} catch (err) {
-		// console.log(err);
+		console.error('ViBoot: Error in sync_calender_tt:', err);
 	}
 };
 
@@ -539,6 +543,8 @@ extApi.runtime.onMessage.addListener((request) => {
 	if (request.message === 'time_table') {
 		try {
 			sync_calender_tt();
-		} catch (error) {}
+		} catch (error) {
+			console.error('ViBoot: Error in time_table handler:', error);
+		}
 	}
 });

@@ -36,25 +36,28 @@ function getDuration(dayTime) {
 }
 
 async function checkAllCoursesForOnDuty() {
-	// Get all the class IDs and slot names
 	const courseInfo = [];
-	document.querySelectorAll('.table tbody tr').forEach((row) => {
-		const viewButton = row.querySelector('a.btn-link');
+	const tableRows = document.querySelectorAll('.table tbody tr');
+	if (tableRows.length === 0) {
+		console.error('ViBoot OD: No attendance table rows found');
+		return [];
+	}
+
+	tableRows.forEach((row) => {
+		const viewButton = row.querySelector('a.btn-link') || row.querySelector('a[onclick*="processViewAttendanceDetail"]');
 		if (viewButton) {
-			const onClickAttr = viewButton.getAttribute('onclick');
+			const onClickAttr = viewButton.getAttribute('onclick') || '';
 			const match = onClickAttr.match(
 				/processViewAttendanceDetail\('([^']+)',\s*'([^']+)'\)/,
 			);
 			if (match) {
+				const codeEl = row.querySelector('td:nth-child(2) p') || row.querySelector('td:nth-child(2)');
+				const titleEl = row.querySelector('td:nth-child(3) p') || row.querySelector('td:nth-child(3)');
 				courseInfo.push({
 					classId: match[1],
 					slotName: match[2],
-					courseCode: row
-						.querySelector('td:nth-child(2) p')
-						?.textContent.trim(),
-					courseTitle: row
-						.querySelector('td:nth-child(3) p')
-						?.textContent.trim(),
+					courseCode: codeEl?.textContent.trim() || 'Unknown',
+					courseTitle: titleEl?.textContent.trim() || 'Unknown',
 				});
 			}
 		}
@@ -62,11 +65,17 @@ async function checkAllCoursesForOnDuty() {
 
 	log(`Found ${courseInfo.length} courses to check`);
 
+	if (courseInfo.length === 0) {
+		console.error('ViBoot OD: Could not extract course info from attendance table');
+		return [];
+	}
+
 	const csrfToken = document.querySelector("input[name='_csrf']")?.value;
-	const authorizedID = document.querySelector('input#authorizedID')?.value;
+	const authorizedID = document.querySelector('input#authorizedID')?.value
+		|| document.querySelector('input[name="authorizedID"]')?.value;
 
 	if (!csrfToken || !authorizedID) {
-		console.error('Could not find CSRF token or authorizedID');
+		console.error('ViBoot OD: Could not find CSRF token or authorizedID');
 		return [];
 	}
 
@@ -83,56 +92,58 @@ async function checkAllCoursesForOnDuty() {
 		formData.append('authorizedID', authorizedID);
 		formData.append('x', new Date().toUTCString());
 
-		const response = await fetch('processViewAttendanceDetail', {
-			method: 'POST',
-			body: formData,
-		});
+		try {
+			const response = await fetch('processViewAttendanceDetail', {
+				method: 'POST',
+				body: formData,
+			});
 
-		if (!response.ok) {
-			console.error(`Failed to fetch details for ${course.courseCode}`);
-			return;
-		}
-
-		const html = await response.text();
-
-		const tempDiv = document.createElement('div');
-		tempDiv.innerHTML = html;
-
-		const attendanceRows = tempDiv.querySelectorAll('.table tbody tr');
-		log(
-			`Found ${attendanceRows.length} attendance entries for ${course.courseCode}`,
-		);
-
-		attendanceRows.forEach((row) => {
-			const date = row
-				.querySelector('td:nth-child(2)')
-				?.textContent.trim();
-			const dayTime = row
-				.querySelector('td:nth-child(4) p')
-				?.textContent.trim();
-			const statusCell = row.querySelector('td:nth-child(5)');
-			const status = statusCell?.textContent.trim();
-
-			if (status && status.includes('On Duty')) {
-				const duration = getDuration(dayTime);
-				// OD count: less than 60 minutes(theory slot) => 1, 60 or more minutes(labs) => 2.
-				const odCount = duration < 60 ? 1 : 2;
-
-				onDutyEntries.push({
-					courseCode: course.courseCode,
-					courseTitle: course.courseTitle,
-					slot: course.slotName,
-					date,
-					dayTime,
-					status,
-					odCount,
-				});
-
-				log(
-					`Found On Duty: ${course.courseCode} on ${date} (${dayTime}) with duration ${duration} minutes, OD Count: ${odCount}`,
-				);
+			if (!response.ok) {
+				console.error(`ViBoot OD: Failed to fetch details for ${course.courseCode} (HTTP ${response.status})`);
+				return;
 			}
-		});
+
+			const html = await response.text();
+
+			const tempDiv = document.createElement('div');
+			tempDiv.innerHTML = html;
+
+			const attendanceRows = tempDiv.querySelectorAll('.table tbody tr');
+			log(
+				`Found ${attendanceRows.length} attendance entries for ${course.courseCode}`,
+			);
+
+			attendanceRows.forEach((row) => {
+				const date = row
+					.querySelector('td:nth-child(2)')
+					?.textContent.trim();
+				const dayTimeEl = row.querySelector('td:nth-child(4) p') || row.querySelector('td:nth-child(4)');
+				const dayTime = dayTimeEl?.textContent.trim();
+				const statusCell = row.querySelector('td:nth-child(5)');
+				const status = statusCell?.textContent.trim();
+
+				if (status && status.includes('On Duty')) {
+					const duration = getDuration(dayTime);
+					const odCount = duration < 60 ? 1 : 2;
+
+					onDutyEntries.push({
+						courseCode: course.courseCode,
+						courseTitle: course.courseTitle,
+						slot: course.slotName,
+						date,
+						dayTime,
+						status,
+						odCount,
+					});
+
+					log(
+						`Found On Duty: ${course.courseCode} on ${date} (${dayTime}) with duration ${duration} minutes, OD Count: ${odCount}`,
+					);
+				}
+			});
+		} catch (error) {
+			console.error(`ViBoot OD: Error checking course ${course.courseCode}:`, error);
+		}
 	}
 
 	for (const course of courseInfo) {
@@ -216,8 +227,17 @@ function displayOnDutyTable(entries) {
         font-weight: bold;
         color: #007bff;
     `;
-	odCountDiv.innerHTML = `Total OD Count: <span style="color: #dc3545; font-size: 22px;">${totalOdCount}</span><br><small style="color: #6c757d; font-weight: normal;">The total number of ODs includes all types combined (SWC, School, CDC, etc.), be careful.</small>`;
+	if (entries.length === 0) {
+		odCountDiv.innerHTML = `No On Duty entries found in any course.`;
+	} else {
+		odCountDiv.innerHTML = `Total OD Count: <span style="color: #dc3545; font-size: 22px;">${totalOdCount}</span><br><small style="color: #6c757d; font-weight: normal;">The total number of ODs includes all types combined (SWC, School, CDC, etc.), be careful.</small>`;
+	}
 	tableContainer.appendChild(odCountDiv);
+
+	if (entries.length === 0) {
+		container.appendChild(tableContainer);
+		return;
+	}
 
 	const table = document.createElement('table');
 	table.id = 'onDutyTable';
@@ -302,19 +322,17 @@ function displayCourseWiseTable(entries) {
 	// First, get all courses from the attendance table
 	const allCourses = [];
 	document.querySelectorAll('.table tbody tr').forEach((row) => {
-		const viewButton = row.querySelector('a.btn-link');
+		const viewButton = row.querySelector('a.btn-link') || row.querySelector('a[onclick*="processViewAttendanceDetail"]');
 		if (viewButton) {
-			const onClickAttr = viewButton.getAttribute('onclick');
+			const onClickAttr = viewButton.getAttribute('onclick') || '';
 			const match = onClickAttr.match(
 				/processViewAttendanceDetail\('([^']+)',\s*'([^']+)'\)/,
 			);
 			if (match) {
-				const courseCode = row
-					.querySelector('td:nth-child(2) p')
-					?.textContent.trim();
-				const courseTitle = row
-					.querySelector('td:nth-child(3) p')
-					?.textContent.trim();
+				const codeEl = row.querySelector('td:nth-child(2) p') || row.querySelector('td:nth-child(2)');
+				const titleEl = row.querySelector('td:nth-child(3) p') || row.querySelector('td:nth-child(3)');
+				const courseCode = codeEl?.textContent.trim();
+				const courseTitle = titleEl?.textContent.trim();
 				const slotName = match[2];
 
 				// Determine if it's a lab or theory course

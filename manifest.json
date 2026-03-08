@@ -3,7 +3,7 @@
 	"name": "ViBoot Enhanced",
 	"description": "Enhance your VTOP in one-click.",
 	"version": "1.5",
-	"author": "Arsh Saxena and Aishik Tokdar",
+	"author": "Ashwanth Kumaravel",
 	"icons": {
 		"16": "assets/icons/img_16.png",
 		"48": "assets/icons/img_48.png",
@@ -19,8 +19,6 @@
 		"downloads",
 		"storage",
 		"tabs",
-		"alarms",
-		"notifications",
 		"*://vtop.vit.ac.in/*",
 		"*://vtopcc.vit.ac.in/vtop/*",
 		"*://vtop.vitbhopal.ac.in/vtop/*"

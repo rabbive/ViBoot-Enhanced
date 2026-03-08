@@ -28,6 +28,8 @@ extApi.runtime.onMessage.addListener((request) => {
 	if (request.message === 'vtopcc_nav_bar') {
 		try {
 			nav_barcc();
-		} catch (error) {}
+		} catch (error) {
+			console.error('ViBoot: Error in navbarcc handler:', error);
+		}
 	}
 });
