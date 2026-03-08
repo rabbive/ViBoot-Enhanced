@@ -5,6 +5,19 @@
 - Firefox guide: [README_FIREFOX.md](./README_FIREFOX.md)
 - Safari guide: [README_SAFARI.md](./README_SAFARI.md)
 
+## Browser support matrix
+
+> Note: this branch is Firefox/Safari-focused. Chrome support refers to the legacy Chrome build line.
+
+| Feature | Chrome (legacy build) | Firefox (this branch) | Safari (separate build) |
+| --- | --- | --- | --- |
+| Core VTOP UI enhancements | Yes | Yes | Yes |
+| Course/assignment download helpers | Yes | Yes | Yes |
+| Google sign-in in popup | Yes | No (disabled) | No (disabled) |
+| Google Calendar sync flows | Yes | No (disabled) | No (disabled) |
+| Popup version/status UI | Yes | Yes | Yes |
+| Recommended install route | Chrome extension package | Load temporary add-on from `manifest.json` | Build Safari package from `manifest.safari.json` |
+
 ## 🚀 Getting Started
 
 Welcome to ViBoot-Enhanced! This tool helps you have a better experience with VTOP in one click. Whether you're tracking grades or managing your schedule, you’ll enjoy a smoother interface.

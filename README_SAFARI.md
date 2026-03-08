@@ -4,8 +4,8 @@ This document describes how to run ViBoot-Enhanced on Safari using Apple's Web E
 
 ## Current status
 
-- A dedicated Safari package is **not** bundled in this repository by default.
-- Safari support is possible via conversion, but should be treated as **experimental** until fully tested.
+- A dedicated Safari manifest is included: `manifest.safari.json`.
+- A separate Safari extension package can be generated via `scripts/build_safari_extension.sh`.
 - Google sign-in/sync is currently not part of the Safari path in this project.
 
 ## Requirements
@@ -15,17 +15,29 @@ This document describes how to run ViBoot-Enhanced on Safari using Apple's Web E
 - Safari
 - Command-line tools (`xcrun`)
 
-## Convert this extension for Safari
+## Build separate Safari extension package
 
 From the project root, run:
 
 ```bash
-xcrun safari-web-extension-converter . --project-location ./safari
+./scripts/build_safari_extension.sh
 ```
 
-This creates an Xcode project for a Safari Web Extension wrapper app.
+This creates a Safari-specific extension directory at:
 
-## Build and run
+- `dist/safari-extension`
+
+That directory uses `manifest.safari.json` as its `manifest.json`.
+
+## Convert the Safari package to Xcode
+
+From the project root, run:
+
+```bash
+xcrun safari-web-extension-converter ./dist/safari-extension --project-location ./safari
+```
+
+## Build and run in Safari
 
 1. Open the generated Xcode project in `./safari`.
 2. Choose a development team for signing.
@@ -44,7 +56,7 @@ Use "Allow on specific websites" or equivalent Safari permission settings.
 
 ## Expected compatibility notes
 
-Safari WebExtensions API coverage differs from Chrome/Firefox. The following may need additional adjustment during Safari QA:
+Safari WebExtensions API coverage differs from Chrome/Firefox. The following should be verified during Safari QA:
 
 - Download filename interception/custom foldering behavior
 - Certain request-observer behaviors

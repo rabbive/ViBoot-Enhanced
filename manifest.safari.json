@@ -1,14 +1,9 @@
 {
 	"manifest_version": 2,
-	"name": "ViBoot Enhanced",
+	"name": "ViBoot Enhanced (Safari)",
 	"description": "Enhance your VTOP in one-click.",
 	"version": "1.5",
 	"author": "Arsh Saxena and Aishik Tokdar",
-	"browser_specific_settings": {
-		"gecko": {
-			"id": "viboot-enhanced@vitrendz.com"
-		}
-	},
 	"permissions": [
 		"webRequest",
 		"downloads",
