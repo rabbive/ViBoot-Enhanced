@@ -1,0 +1,49 @@
+{
+	"manifest_version": 3,
+	"name": "ViBoot Enhanced",
+	"description": "Enhance your VTOP in one-click.",
+	"version": "1.5-alpha",
+	"author": "Arsh Saxena and Aishik Tokdar",
+	"permissions": [
+		"webRequest",
+		"downloads",
+		"storage",
+		"tabs",
+		"alarms",
+		"notifications"
+	],
+	"host_permissions": [
+		"*://vtop.vit.ac.in/*",
+		"*://vtopcc.vit.ac.in/vtop/*",
+		"*://vtop.vitbhopal.ac.in/vtop/*"
+	],
+	"background": {
+		"service_worker": "service_worker/background.js"
+	},
+	"content_scripts": [
+		{
+			"matches": [
+				"*://vtop.vit.ac.in/*",
+				"*://vtopcc.vit.ac.in/vtop/*",
+				"*://vtop.vitbhopal.ac.in/vtop/*"
+			],
+			"js": [
+				"js/compat/chrome_compat.js",
+				"js/captcha/bitmaps.js",
+				"js/captcha/captchaparser.js",
+				"js/attendance.js",
+				"js/course_page.js",
+				"js/exam_schedule.js",
+				"js/marks_page.js",
+				"js/navbar.js",
+				"js/navbarcc.js",
+				"js/on_duty.js",
+				"js/time_table.js"
+			]
+		}
+	],
+	"action": {
+		"default_popup": "html/popup.html",
+		"default_title": "ViBoot Enhanced"
+	}
+}

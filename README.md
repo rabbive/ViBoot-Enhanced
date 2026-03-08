@@ -4,6 +4,7 @@
 
 - Firefox guide: [README_FIREFOX.md](./README_FIREFOX.md)
 - Safari guide: [README_SAFARI.md](./README_SAFARI.md)
+- Alpha release page: [RELEASE_ALPHA.md](./RELEASE_ALPHA.md)
 
 ## Browser support matrix
 
