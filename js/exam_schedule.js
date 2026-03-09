@@ -142,7 +142,7 @@ let exam_schedule_sync = () => {
 						details.exam_time[j],
 					);
 					fetch(
-						'https://www.googleapis.com/calendar/v3/calendars/primary/events?sendUpdates=all&sendNotifications=true&alt=json&key=AIzaSyCPBz-DTZdoTLQ_ZiqsVUO520XItcomTn0',
+						'https://www.googleapis.com/calendar/v3/calendars/primary/events?sendUpdates=all&sendNotifications=true&alt=json',
 						{
 							method: 'POST',
 							headers: {

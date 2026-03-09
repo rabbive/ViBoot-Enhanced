@@ -1,27 +1,45 @@
 const extApi = typeof chrome !== 'undefined' ? chrome : browser;
 
+const NAV_ITEMS = [
+	{ label: 'Marks View', id: 'EXM0011', route: 'examinations/StudentMarkView' },
+	{ label: 'Class Attendance', id: 'ACD0042', route: 'academics/common/StudentAttendance' },
+	{ label: 'Course Page', id: 'ACD0045', route: 'academics/common/StudentCoursePage' },
+	{ label: 'DA Upload', id: 'EXM0017', route: 'examinations/StudentDA' },
+	{ label: 'Time Table', id: 'ACD0034', route: 'academics/common/StudentTimeTable' },
+	{ label: 'Academic Calendar', id: 'ACD0128', route: 'academics/common/CalendarPreview' },
+];
+
+const LINK_STYLE = 'color: #fafafa; border-style: none; text-decoration: none; margin-left: 15px; font-size: 15px';
+
 let nav_barcc = () => {
-	if (document.URL.match('vtopcc') != null) {
-		let span = document.createElement('div');
-		span.className = 'navbar-brand';
-		span.style.paddingTop = '20px';
-		span.innerHTML = `
-        <a href="javascript:loadmydiv('examinations/StudentMarkView')" id="EXM0011" class="btnItem" onclick="toggleButtonMenuItem()" style="color: #fafafa;border-style: none;text-decoration: none; margin-left: 15px; font-size:15px" >Marks View</a>
-        
-        <a href="javascript:loadmydiv('academics/common/StudentAttendance')" id="ACD0042" class="btnItem" onclick="toggleButtonMenuItem()" style="color: #fafafa;border-style: none;text-decoration: none; margin-left: 15px;font-size:15px">Class Attendance</a>
-        
-        <a href="javascript:loadmydiv('academics/common/StudentCoursePage')" id="ACD0045" class="btnItem" onclick="toggleButtonMenuItem()" style="color: #fafafa;border-style: none;text-decoration: none; margin-left: 15px; font-size:15px">Course Page</a>
-        
-        <a href="javascript:loadmydiv('examinations/StudentDA')" id="EXM0017" class="btnItem" onclick="toggleButtonMenuItem()" style="color: #fafafa;border-style: none;text-decoration: none; margin-left: 15px; font-size:15px">DA Upload</a>
-        
-        <a href="javascript:loadmydiv('academics/common/StudentTimeTable')" id="ACD0034" class="btnItem" onclick="toggleButtonMenuItem()" style="color: #fafafa;border-style: none;text-decoration: none; margin-left: 15px; font-size:15px">Time Table</a>
-        
-        <a href="javascript:loadmydiv('academics/common/CalendarPreview')" id="ACD0128" class="btnItem" onclick="toggleButtonMenuItem()" style="color: #fafafa;border-style: none;text-decoration: none; margin-left: 15px; font-size:15px">Academic Calendar</a>
-        `;
-		document
-			.getElementsByClassName('navbar-header')[0]
-			.insertAdjacentElement('beforeend', span);
-	}
+	if (document.URL.match('vtopcc') == null) return;
+
+	const span = document.createElement('div');
+	span.className = 'navbar-brand';
+	span.style.paddingTop = '20px';
+
+	NAV_ITEMS.forEach((item) => {
+		const a = document.createElement('a');
+		a.href = '#';
+		a.id = item.id;
+		a.className = 'btnItem';
+		a.style.cssText = LINK_STYLE;
+		a.textContent = item.label;
+		a.addEventListener('click', (e) => {
+			e.preventDefault();
+			if (typeof loadmydiv === 'function') {
+				loadmydiv(item.route);
+			}
+			if (typeof toggleButtonMenuItem === 'function') {
+				toggleButtonMenuItem();
+			}
+		});
+		span.appendChild(a);
+	});
+
+	document
+		.getElementsByClassName('navbar-header')[0]
+		.insertAdjacentElement('beforeend', span);
 };
 
 extApi.runtime.onMessage.addListener((request) => {

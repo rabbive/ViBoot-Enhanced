@@ -1,12 +1,28 @@
 const extApi = typeof chrome !== 'undefined' ? chrome : browser;
 
+function createNavButton(label, index) {
+	const btn = document.createElement('button');
+	btn.className = 'btn btn-primary border-primary shadow-none nav-short';
+	btn.type = 'button';
+	btn.style.background = 'rgba(13,110,253,0)';
+	btn.style.borderStyle = 'none';
+	btn.textContent = label;
+	btn.addEventListener('click', () => {
+		const items = Array.from(document.getElementsByTagName('a')).filter(
+			(e) => e.dataset.url,
+		);
+		if (items[index]) items[index].click();
+	});
+	return btn;
+}
+
 const nav_bar_change = () => {
 	let items_list = Array.from(document.getElementsByTagName('a')).filter(
 		(e) => e.dataset.url,
 	);
-	let marks, attendance, time_table, calendar;
+	let marks, attendance, time_table, calendar, course_page;
 	for (let i = 0; i < items_list.length; i++) {
-		item = items_list[i].innerText.trim();
+		const item = items_list[i].innerText.trim();
 		if (item.includes('Class Attendance')) {
 			attendance = i;
 		} else if (item.includes('Time Table')) {
@@ -22,23 +38,22 @@ const nav_bar_change = () => {
 	let nav = document.getElementsByClassName('collapse navbar-collapse');
 	let span = document.createElement('div');
 	span.id = 'navbar';
-	span.innerHTML = `
-    <span class="navbar-text px-0 px-sm-2 mx-0 mx-sm-1 text-light" ></span>
 
-    <button class="btn btn-primary border-primary shadow-none nav-short" type="button" style="background: rgba(13,110,253,0);border-style: none;" onclick="Array.from(document.getElementsByTagName('a')).filter((e) => e.dataset.url)[${attendance}].click()">Attendance</button>
+	const spacer = document.createElement('span');
+	spacer.className = 'navbar-text px-0 px-sm-2 mx-0 mx-sm-1 text-light';
+	span.appendChild(spacer);
 
-   <button class="btn btn-primary border-primary shadow-none nav-short" type="button" style="background: rgba(13,110,253,0);border-style: none;" onclick="Array.from(document.getElementsByTagName('a')).filter((e) => e.dataset.url)[${marks}].click();">Marks</button>
+	span.appendChild(createNavButton('Attendance', attendance));
+	span.appendChild(createNavButton('Marks', marks));
+	span.appendChild(createNavButton('Calendar', calendar));
+	span.appendChild(createNavButton('Course Page', course_page));
 
-   <button class="btn btn-primary border-primary shadow-none nav-short" type="button" style="background: rgba(13,110,253,0);border-style: none;" onclick="Array.from(document.getElementsByTagName('a')).filter((e) => e.dataset.url)[${calendar}].click()">Calendar</button>
+	if (time_table) {
+		span.appendChild(createNavButton('Time Table', time_table));
+	} else {
+		span.appendChild(createNavButton('Calendar', time_table));
+	}
 
-    <button class="btn btn-primary border-primary shadow-none nav-short" type="button" style="background: rgba(13,110,253,0);border-style: none;" onclick="Array.from(document.getElementsByTagName('a')).filter((e) => e.dataset.url)[${course_page}].click()">Course Page</button>
-
-
-    `;
-	if (time_table)
-		span.innerHTML += `<button class="btn btn-primary border-primary shadow-none nav-short" type="button" style="background: rgba(13,110,253,0);border-style: none;" onclick="Array.from(document.getElementsByTagName('a')).filter((e) => e.dataset.url)[${time_table}].click()">Time Table</button>`;
-	else
-		span.innerHTML += `<button class="btn btn-primary border-primary shadow-none nav-short" type="button" style="background: rgba(13,110,253,0);border-style: none;" onclick="Array.from(document.getElementsByTagName('a')).filter((e) => e.dataset.url)[${time_table}].click()">Calendar</button>`;
 	nav[0].insertBefore(span, nav[0].children[0]);
 
 	let buttons = document.querySelectorAll('.nav-short');
@@ -81,9 +96,7 @@ extApi.runtime.onMessage.addListener((request) => {
 			) {
 				nav_bar_change();
 			}
-		} catch (error) {
-			// console.log(error);
-		}
+		} catch (error) {}
 	}
 });
 if (

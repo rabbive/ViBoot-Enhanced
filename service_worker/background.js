@@ -3,11 +3,7 @@ let course = '';
 let faculty_slot = '';
 let module_wise = true;
 let data = {};
-let time_last = new Date();
 
-let set_time_last = (time) => {
-	time_last = time;
-};
 const returnMessage = (MessageToReturn) => {
 	extApi.tabs.query({ active: true, currentWindow: true }, (tab) => {
 		const targetTab = tab.find((currentTab) =>
@@ -25,6 +21,7 @@ const trigger_download = (request) => {
 	course = request.data.course;
 	faculty_slot = request.data.faculty_slot;
 	module_wise = request.data.module_wise;
+	data = request.data;
 	request.data.link_data.forEach((link) => {
 		fetch(link.url, { method: 'HEAD', credentials: 'include' })
 			.then((response) => {
@@ -33,13 +30,10 @@ const trigger_download = (request) => {
 					response.ok &&
 					contentType.includes('pdf')
 				) {
-					// console.log(response.text);
 					extApi.downloads.download({
 						url: link.url,
 						conflictAction: 'uniquify',
 					});
-				} else {
-					// console.log('Skipping non-PDF file: ', link.url);
 				}
 			})
 			.catch((error) => {
@@ -55,7 +49,6 @@ extApi.runtime.onMessage.addListener((request, sender, sendResponse) => {
 		request.message === 'course-page-data' ||
 		request.message === 'assignment-page-data'
 	) {
-		data = request.data || {};
 		trigger_download(request);
 		return;
 	}
@@ -73,103 +66,91 @@ extApi.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	}
 });
 
-// onDeterminingFilename is Chrome-only; Firefox does not support it
-if (extApi.downloads.onDeterminingFilename) {
-extApi.downloads.onDeterminingFilename.addListener((item, suggest) => {
-	// console.log('Item');
-	// console.log(item);
-	if (
-		item.url.includes('vtop.vit.ac.in') ||
-		item.url.includes('vtopcc.vit.ac.in') ||
-		item.url.includes('vtop.vitbhopal.ac.in')
-	) {
-		let view;
-		let fileUrlLower = item.url.toLowerCase();
-		// console.log(fileUrlLower);
-		if (fileUrlLower.includes('examinations')) {
-			view = 'Assignment';
-		} else if (fileUrlLower.includes('coursesyllabusdownload')) {
-			view = 'Syllabus';
-		} else if (fileUrlLower.includes('downloadpdf')) {
-			view = 'Course';
-		} else {
-			view = 'Unknown';
-		}
-		// console.log(view);
+if (extApi.downloads && extApi.downloads.onDeterminingFilename) {
+	extApi.downloads.onDeterminingFilename.addListener((item, suggest) => {
+		if (
+			item.url.includes('vtop.vit.ac.in') ||
+			item.url.includes('vtopcc.vit.ac.in') ||
+			item.url.includes('vtop.vitbhopal.ac.in')
+		) {
+			let view;
+			let fileUrlLower = item.url.toLowerCase();
+			if (fileUrlLower.includes('examinations')) {
+				view = 'Assignment';
+			} else if (fileUrlLower.includes('coursesyllabusdownload')) {
+				view = 'Syllabus';
+			} else if (fileUrlLower.includes('downloadpdf')) {
+				view = 'Course';
+			} else {
+				view = 'Unknown';
+			}
 
-		if (view == 'Course') {
-			let file_extension = item.filename
-				.replace(/([^_]*_){8}/, '')
-				.split('.');
-			file_extension = '.' + file_extension[file_extension.length - 1];
-			// console.log(course);
-			// console.log(faculty_slot);
-			if (course != '' && faculty_slot != '') {
-				let filename =
-					'VIT Downloads/' + course + '/' + faculty_slot + '/';
-				if (data.link_data[0]['folder_title'] != undefined) {
-					if (module_wise)
-						filename +=
-							data.link_data[0]['folder_title'] +
-							'/' +
-							data.link_data[0]['title'] +
-							file_extension;
-					else
-						filename += data.link_data[0]['title'] + file_extension;
-				} else filename += item.filename;
-				// console.log(filename);
-				suggest({
-					filename: filename,
-				});
-				course = '';
-				faculty_slot = '';
-				// console.log('Flag 1');
-			} else
-				suggest({
-					filename: 'VIT Downloads/Other Downloads/' + item.filename,
-				});
-		} else if (view == 'Assignment') {
-			// console.log('Flag 2');
-			let file_extension = item.filename
-				.replace(/([^_]*_){8}/, '')
-				.split('.');
-			file_extension = '.' + file_extension[file_extension.length - 1];
-			// console.log(course);
-			let file_name = course;
-			if (item.url.includes('doDownloadQuestion')) file_name += ' QP ';
-			else if (item.url.includes('downloadSTudentDA'))
-				file_name += ' Submission ';
-			else {
+			if (view === 'Course') {
+				let file_extension = item.filename
+					.replace(/([^_]*_){8}/, '')
+					.split('.');
+				file_extension = '.' + file_extension[file_extension.length - 1];
+				if (course !== '' && faculty_slot !== '') {
+					let filename =
+						'VIT Downloads/' + course + '/' + faculty_slot + '/';
+					if (data.link_data && data.link_data[0] && data.link_data[0]['folder_title'] != undefined) {
+						if (module_wise)
+							filename +=
+								data.link_data[0]['folder_title'] +
+								'/' +
+								data.link_data[0]['title'] +
+								file_extension;
+						else
+							filename += data.link_data[0]['title'] + file_extension;
+					} else filename += item.filename;
+					suggest({
+						filename: filename,
+					});
+					course = '';
+					faculty_slot = '';
+				} else
+					suggest({
+						filename: 'VIT Downloads/Other Downloads/' + item.filename,
+					});
+			} else if (view === 'Assignment') {
+				let file_extension = item.filename
+					.replace(/([^_]*_){8}/, '')
+					.split('.');
+				file_extension = '.' + file_extension[file_extension.length - 1];
+				let file_name = course;
+				if (item.url.includes('doDownloadQuestion')) file_name += ' QP ';
+				else if (item.url.includes('downloadSTudentDA'))
+					file_name += ' Submission ';
+				else {
+					suggest({
+						filename:
+							'VIT Downloads/Other Downloads/Assignments/' +
+							item.filename,
+					});
+					return;
+				}
+				file_name += item.filename.slice(-5, -4);
 				suggest({
 					filename:
 						'VIT Downloads/Other Downloads/Assignments/' +
-						item.filename,
+						file_name +
+						file_extension,
 				});
-				return;
+			} else if (view === 'Syllabus') {
+				let file_extension = item.filename
+					.replace(/([^_]*_){8}/, '')
+					.split('.');
+				file_extension = '.' + file_extension[file_extension.length - 1];
+				let syllabus_course = item.filename.split('_')[1];
+				suggest({
+					filename:
+						'VIT Downloads/Other Downloads/Syllabus/' +
+						syllabus_course +
+						file_extension,
+				});
 			}
-			file_name += item.filename.slice(-5, -4);
-			suggest({
-				filename:
-					'VIT Downloads/Other Downloads/Assignments/' +
-					file_name +
-					file_extension,
-			});
-		} else if (view == 'Syllabus') {
-			// console.log('Flag 3');
-			let file_extension = item.filename
-				.replace(/([^_]*_){8}/, '')
-				.split('.');
-			file_extension = '.' + file_extension[file_extension.length - 1];
-			syllabus_course = item.filename.split('_')[1];
-			suggest({
-				filename:
-					'VIT Downloads/Other Downloads/Syllabus/' +
-					syllabus_course +
-					file_extension,
-			});
 		}
-	}
-});
+	});
 }
 
 function sleep(ms) {
@@ -179,8 +160,6 @@ function sleep(ms) {
 extApi.webRequest.onCompleted.addListener(
 	async (details) => {
 		let link = details['url'];
-		time_last = new Date();
-		set_time_last(time_last);
 		if (link.indexOf('doStudentMarkView') !== -1) {
 			returnMessage('mark_view_page');
 		} else if (
@@ -218,4 +197,3 @@ extApi.webRequest.onCompleted.addListener(
 		],
 	},
 );
-

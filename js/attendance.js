@@ -1,17 +1,60 @@
 const extApi = typeof chrome !== 'undefined' ? chrome : browser;
 
+function createColorLegend(cautionText) {
+	const div = document.createElement('div');
+
+	const p1 = document.createElement('p');
+	p1.style.color = 'RGB(34 144 62)';
+	p1.textContent = '*Attendance greater than 75%.';
+	div.appendChild(p1);
+
+	const p2 = document.createElement('p');
+	p2.style.color = 'rgb(255, 171, 16)';
+	p2.style.marginTop = '-10px';
+	p2.textContent = cautionText;
+	div.appendChild(p2);
+
+	const p3 = document.createElement('p');
+	p3.style.color = 'rgb(238, 75, 43)';
+	p3.style.marginTop = '-10px';
+	p3.textContent = '*Attendance less than 75%.';
+	div.appendChild(p3);
+
+	return div;
+}
+
+function createCautionNote() {
+	const p = document.createElement('p');
+	p.id = 'attendance';
+	p.style.cssText = 'color:#32750e; background:#f7f710; font-size:1rem; display: inline-block; border-radius: 5px;';
+	const b = document.createElement('b');
+	b.textContent = "* Note: This calculator doesn't calculate the attendance till the exam date, it only calculates the attendance to 74.01%.";
+	p.appendChild(b);
+	return p;
+}
+
+function createAttendanceCell(text, bgColor) {
+	const td = document.createElement('td');
+	td.style.cssText = 'vertical-align: middle; border: 1px solid #b2b2b2; padding: 5px; background: ' + bgColor + ';';
+	const p = document.createElement('p');
+	p.style.margin = '0px';
+	p.textContent = text;
+	td.appendChild(p);
+	return td;
+}
+
 let view_attendance_page = () => {
 	if (document.location.href.includes('vtopcc')) {
 		let table_line = document.querySelectorAll('.table-responsive')[0];
-		table_line.getElementsByTagName('span')[0].outerHTML +=
-			"<br><br><p id='attendance' style='color:#32750e; background:#f7f710; font-size:1rem; display: inline-block; border-radius: 5px;'><b>* Note: This calculator doesn't calculate the attendance till the exam date, it only calculates the attendance to 74.01%.</b></p>";
+		const noteP = createCautionNote();
+		const br1 = document.createElement('br');
+		const br2 = document.createElement('br');
+		const spanEl = table_line.getElementsByTagName('span')[0];
+		spanEl.parentNode.insertBefore(br1, spanEl.nextSibling);
+		spanEl.parentNode.insertBefore(br2, br1.nextSibling);
+		spanEl.parentNode.insertBefore(noteP, br2.nextSibling);
 
-		let color_detail = document.createElement('div');
-		color_detail.innerHTML = `
-            <p style='color:RGB(34 144 62);'>*Attendance greater than 75%.</p>
-            <p style='color:rgb(255, 171, 16);margin-top:-10px;'>*Be cautious, your attendance is in between 74.01% to 74.99%.</p>
-            <p style='color:rgb(238, 75, 43); margin-top:-10px'>*Attendance less than 75%.</p>
-            `;
+		const color_detail = createColorLegend('*Be cautious, your attendance is in between 74.01% to 74.99%.');
 		table_line.insertAdjacentElement('afterend', color_detail);
 
 		let table_head =
@@ -25,16 +68,10 @@ let view_attendance_page = () => {
 			.parentElement.parentElement;
 
 		let divCaution = document.createElement('div');
-		divCaution.innerHTML =
-			"<p id='attendance' style='color:#32750e; background:#f7f710; font-size:1rem; display: inline-block; border-radius: 5px;'><b>* Note: This calculator doesn't calculate the attendance till the exam date, it only calculates the attendance to 74.01%.</b></p>";
+		divCaution.appendChild(createCautionNote());
 		table_line.insertAdjacentElement('beforebegin', divCaution);
 
-		let color_detail = document.createElement('div');
-		color_detail.innerHTML = `
-		    <p style='color:RGB(34 144 62);'>*Attendance greater than 75%.</p>
-		    <p style='color:rgb(255, 171, 16);margin-top:-10px;'>*Be Cautious, your attendance is in between 74.01% to 74.99%.</p>
-		    <p style='color:rgb(238, 75, 43); margin-top:-10px'>*Attendance less than 75%.</p>
-		    `;
+		const color_detail = createColorLegend('*Be Cautious, your attendance is in between 74.01% to 74.99%.');
 		table_line.insertAdjacentElement('beforeend', color_detail);
 
 		let table_head =
@@ -47,7 +84,6 @@ let view_attendance_page = () => {
 	let body = document.getElementsByTagName('tbody');
 	let body_row = body[0].querySelectorAll('tr');
 	body_row.forEach((row) => {
-		let new_Table_Content = row.innerHTML.split('\n');
 		if (row.childNodes.length > 3) {
 			let attended_classes, tot_classes, course_type;
 			if (
@@ -62,11 +98,6 @@ let view_attendance_page = () => {
 				tot_classes = parseFloat(row.childNodes[21].innerText);
 				course_type = row.childNodes[7].innerText;
 			}
-			let new_table_content_splice = document.location.href.includes(
-				'vtopcc',
-			)
-				? 29
-				: 37;
 
 			if (attended_classes / tot_classes < 0.7401) {
 				let req_classes = Math.ceil(
@@ -76,19 +107,19 @@ let view_attendance_page = () => {
 				if (course_type.includes('Lab')) {
 					req_classes /= 2;
 					req_classes = Math.ceil(req_classes);
-					new_Table_Content.splice(
-						new_table_content_splice,
-						0,
-						`<td style="vertical-align: middle; border: 1px solid #b2b2b2; padding: 5px; background: rgb(238, 75, 43,0.7);"><p style="margin: 0px;">${req_classes} lab(s) should be attended.</p></td>`,
+					row.appendChild(
+						createAttendanceCell(
+							req_classes + ' lab(s) should be attended.',
+							'rgb(238, 75, 43,0.7)',
+						),
 					);
-					row.innerHTML = new_Table_Content.join('');
 				} else {
-					new_Table_Content.splice(
-						new_table_content_splice,
-						0,
-						`<td style="vertical-align: middle; border: 1px solid #b2b2b2; padding: 5px; background: rgb(238, 75, 43,0.7);"><p style="margin: 0px;">${req_classes} class(es) should be attended.</p></td>`,
+					row.appendChild(
+						createAttendanceCell(
+							req_classes + ' class(es) should be attended.',
+							'rgb(238, 75, 43,0.7)',
+						),
 					);
-					row.innerHTML = new_Table_Content.join('');
 				}
 			} else {
 				let bunk_classes = Math.floor(
@@ -106,25 +137,29 @@ let view_attendance_page = () => {
 				if (course_type.includes('Lab')) {
 					bunk_classes /= 2;
 					bunk_classes = Math.floor(bunk_classes);
-					if (bunk_classes == -1) {
+					if (bunk_classes === -1) {
 						bunk_classes = 0;
 					}
-					new_Table_Content.splice(
-						new_table_content_splice,
-						0,
-						`<td style="vertical-align: middle; border: 1px solid #b2b2b2; padding: 5px; background: ${color};"><p style="margin: 0px;">Only ${bunk_classes} lab(s) can be skipped. <br>Be cautious.</p></td>`,
+					const td = createAttendanceCell(
+						'Only ' + bunk_classes + ' lab(s) can be skipped.',
+						color,
 					);
-					row.innerHTML = new_Table_Content.join('');
+					td.querySelector('p').appendChild(document.createElement('br'));
+					const cautionText = document.createTextNode('Be cautious.');
+					td.querySelector('p').appendChild(cautionText);
+					row.appendChild(td);
 				} else {
-					if (bunk_classes == -1) {
+					if (bunk_classes === -1) {
 						bunk_classes = 0;
 					}
-					new_Table_Content.splice(
-						new_table_content_splice,
-						0,
-						`<td style="vertical-align: middle; border: 1px solid #b2b2b2; padding: 5px; background: ${color};"><p style="margin: 0px;">Only ${bunk_classes} class(es) can be skipped. <br>Be cautious.</p></td>`,
+					const td = createAttendanceCell(
+						'Only ' + bunk_classes + ' class(es) can be skipped.',
+						color,
 					);
-					row.innerHTML = new_Table_Content.join('');
+					td.querySelector('p').appendChild(document.createElement('br'));
+					const cautionText = document.createTextNode('Be cautious.');
+					td.querySelector('p').appendChild(cautionText);
+					row.appendChild(td);
 				}
 			}
 		}
@@ -164,7 +199,7 @@ function addCheckODButton(summaryBox) {
     `;
 
 	const checkODBtn = document.createElement('button');
-	checkODBtn.innerHTML = 'Check OD';
+	checkODBtn.textContent = 'Check OD';
 	checkODBtn.style.cssText = `
         background-color: #007bff;
         color: white;
@@ -185,18 +220,18 @@ function addCheckODButton(summaryBox) {
 	});
 
 	checkODBtn.addEventListener('click', () => {
-		checkODBtn.innerHTML = 'Processing attendance data...';
+		checkODBtn.textContent = 'Processing attendance data...';
 		checkODBtn.disabled = true;
 
 		checkAllCoursesForOnDuty()
 			.then(() => {
 				hideProcessingMessage();
-				checkODBtn.innerHTML = 'Check OD';
+				checkODBtn.textContent = 'Check OD';
 				checkODBtn.disabled = false;
 			})
 			.catch((error) => {
 				hideProcessingMessage();
-				checkODBtn.innerHTML = 'Check OD';
+				checkODBtn.textContent = 'Check OD';
 				checkODBtn.disabled = false;
 				console.error('Error generating OD summary:', error);
 			});
@@ -220,7 +255,6 @@ function hideProcessingMessage() {
 	}
 }
 
-// Calculate total attended classes, total classes, and overall percentage
 function calculateAttendanceSummary() {
 	const body = document.getElementsByTagName('tbody')[0];
 	const bodyRows = body.querySelectorAll('tr');
@@ -265,6 +299,29 @@ function sortODSummaryTable() {
 	rows.forEach((row) => odTable.appendChild(row));
 }
 
+function createCell(text, style) {
+	const td = document.createElement('td');
+	if (style) td.style.cssText = style;
+	td.textContent = text;
+	return td;
+}
+
+function createHeaderCell(text, style) {
+	const th = document.createElement('th');
+	if (style) th.style.cssText = style;
+	th.textContent = text;
+	return th;
+}
+
+function createBoldCell(text, style) {
+	const td = document.createElement('td');
+	if (style) td.style.cssText = style;
+	const b = document.createElement('b');
+	b.textContent = text;
+	td.appendChild(b);
+	return td;
+}
+
 function displayAttendanceSummary() {
 	const {
 		totalAttendedClasses,
@@ -297,9 +354,6 @@ function displayAttendanceSummary() {
         background-color: #ffffff;
         border: 1px solid #ddd;
     `;
-	table.querySelectorAll('th, td').forEach((cell) => {
-		cell.style.textAlign = 'center';
-	});
 
 	const canLeaveClasses95 = Math.max(
 		0,
@@ -332,52 +386,53 @@ function displayAttendanceSummary() {
 		),
 	);
 
-	function classesToReachTarget(
-		currentAttended,
-		currentTotal,
-		targetPercentage,
-	) {
-		return Math.ceil(
-			(targetPercentage * currentTotal - currentAttended) /
-				(1 - targetPercentage),
-		);
-	}
+	const thead = document.createElement('thead');
+	thead.className = 'text-center';
+	const headerRow = document.createElement('tr');
+	headerRow.style.cssText = 'background-color: #f8f9fa; border-bottom: 2px solid #007bff;';
+	headerRow.appendChild(createHeaderCell('Total Classes', 'text-align: center;'));
+	headerRow.appendChild(createHeaderCell('Classes Attended', 'text-align: center;'));
+	headerRow.appendChild(createHeaderCell('Classes Unattended', 'text-align: center;'));
+	const pctHeader = createHeaderCell('Attendance Percentage', 'text-align: center;');
+	pctHeader.colSpan = 3;
+	headerRow.appendChild(pctHeader);
+	thead.appendChild(headerRow);
+	table.appendChild(thead);
 
-	table.innerHTML = `
-        <thead class="text-center">
-            <tr style="background-color: #f8f9fa; border-bottom: 2px solid #007bff;">
-            <th style="text-align: center;">Total Classes</th>
-            <th style="text-align: center;">Classes Attended</th>
-            <th style="text-align: center;">Classes Unattended</th>
-            <th colspan="3" style="text-align: center;">Attendance Percentage</th>
-        </tr>
-        </thead>
-        <tbody style="text-align: center">
-            <tr style="text-align: center">
-            <td>${totalClasses}</td>
-            <td style="padding: 10px;">${totalAttendedClasses}</td>
-            <td>${totalBunkedClasses}</td>
-                <td colspan="3" style="color: ${overallPercentage >= 75 ? '#28a745' : '#dc3545'}; font-weight: bold;">${overallPercentage}%</td>
-                
-            </tr>
-            <tr>
-            <th rowspan="2" style="text-align: center; vertical-align: middle; padding: 10px; font-weight: bold;">Classes that can be skipped for attendance</th>
-            <th style="text-align: center; padding: 10px; font-weight: bold;">> 95%</th>
-            <th style="text-align: center; padding: 10px; font-weight: bold;">> 90%</th>
-            <th style="text-align: center; padding: 10px; font-weight: bold;">> 85%</th>
-            <th style="text-align: center; padding: 10px; font-weight: bold;">> 80%</th>
-            <th style="text-align: center; padding: 10px; font-weight: bold;">> 75%</th>
-        </tr>
-            <tr style="text-align: center">
-                <td style="padding: 10px;">${canLeaveClasses95}</td>
-                <td>${canLeaveClasses90}</td>
-                <td>${canLeaveClasses85}</td>
-                <td>${canLeaveClasses80}</td>
-                <td>${canLeaveClasses75}</td>
-            </tr>
-        </tbody>
-    `;
+	const tbody = document.createElement('tbody');
+	tbody.style.textAlign = 'center';
 
+	const dataRow = document.createElement('tr');
+	dataRow.style.textAlign = 'center';
+	dataRow.appendChild(createCell(String(totalClasses)));
+	dataRow.appendChild(createCell(String(totalAttendedClasses), 'padding: 10px;'));
+	dataRow.appendChild(createCell(String(totalBunkedClasses)));
+	const pctCell = document.createElement('td');
+	pctCell.colSpan = 3;
+	pctCell.style.cssText = 'color: ' + (overallPercentage >= 75 ? '#28a745' : '#dc3545') + '; font-weight: bold;';
+	pctCell.textContent = overallPercentage + '%';
+	dataRow.appendChild(pctCell);
+	tbody.appendChild(dataRow);
+
+	const skipHeaderRow = document.createElement('tr');
+	const skipLabel = createHeaderCell('Classes that can be skipped for attendance', 'text-align: center; vertical-align: middle; padding: 10px; font-weight: bold;');
+	skipLabel.rowSpan = 2;
+	skipHeaderRow.appendChild(skipLabel);
+	['> 95%', '> 90%', '> 85%', '> 80%', '> 75%'].forEach((label) => {
+		skipHeaderRow.appendChild(createHeaderCell(label, 'text-align: center; padding: 10px; font-weight: bold;'));
+	});
+	tbody.appendChild(skipHeaderRow);
+
+	const skipDataRow = document.createElement('tr');
+	skipDataRow.style.textAlign = 'center';
+	skipDataRow.appendChild(createCell(String(canLeaveClasses95), 'padding: 10px;'));
+	skipDataRow.appendChild(createCell(String(canLeaveClasses90)));
+	skipDataRow.appendChild(createCell(String(canLeaveClasses85)));
+	skipDataRow.appendChild(createCell(String(canLeaveClasses80)));
+	skipDataRow.appendChild(createCell(String(canLeaveClasses75)));
+	tbody.appendChild(skipDataRow);
+
+	table.appendChild(tbody);
 	summaryBox.appendChild(table);
 
 	const mainTable = document.querySelector('#AttendanceDetailDataTable');

@@ -306,7 +306,7 @@ let calendar_tt = (
 			end_time = add_time(time, 50);
 		}
 		fetch(
-			`https://www.googleapis.com/calendar/v3/calendars/primary/events?sendUpdates=all&sendNotifications=true&alt=json&key=AIzaSyCPBz-DTZdoTLQ_ZiqsVUO520XItcomTn0`,
+			`https://www.googleapis.com/calendar/v3/calendars/primary/events?sendUpdates=all&sendNotifications=true&alt=json`,
 			{
 				method: 'POST',
 				headers: {
@@ -398,7 +398,7 @@ const copyBtn = (details) => {
 	let copyBtn = document.createElement('button');
 	copyBtn.style.width = 'max-content';
 	copyBtn.style.marginLeft = '49%';
-	copyBtn.innerHTML = 'Copy Time Table';
+	copyBtn.textContent = 'Copy Time Table';
 	copyBtn.className = 'btn btn-primary btn-block';
 	copyBtn.id = 'copyTimetable';
 	let facTable = document.getElementById('timeTableStyle');
