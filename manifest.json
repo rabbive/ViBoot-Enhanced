@@ -1,5 +1,5 @@
 {
-	"manifest_version": 2,
+	"manifest_version": 3,
 	"name": "ViBoot Enhanced",
 	"description": "Enhance your VTOP in one-click.",
 	"version": "1.5",
@@ -20,14 +20,15 @@
 		"storage",
 		"tabs",
 		"alarms",
-		"notifications",
+		"notifications"
+	],
+	"host_permissions": [
 		"*://vtop.vit.ac.in/*",
 		"*://vtopcc.vit.ac.in/vtop/*",
 		"*://vtop.vitbhopal.ac.in/vtop/*"
 	],
 	"background": {
-		"scripts": ["service_worker/background.js"],
-		"persistent": true
+		"service_worker": "service_worker/background.js"
 	},
 	"content_scripts": [
 		{
@@ -50,7 +51,7 @@
 			]
 		}
 	],
-	"browser_action": {
+	"action": {
 		"default_icon": {
 			"16": "assets/icons/img_16.png",
 			"48": "assets/icons/img_48.png",

@@ -26,7 +26,7 @@ function getDuration(dayTime) {
 	const startDate = new Date(`1970/01/01 ${startTime}`);
 	const endDate = new Date(`1970/01/01 ${endTime}`);
 
-	let diff = (endDate - startDate) / 60000; // ms to minutes
+	let diff = (endDate - startDate) / 60000;
 
 	if (diff < 0) {
 		diff += 24 * 60;
@@ -36,7 +36,6 @@ function getDuration(dayTime) {
 }
 
 async function checkAllCoursesForOnDuty() {
-	// Get all the class IDs and slot names
 	const courseInfo = [];
 	document.querySelectorAll('.table tbody tr').forEach((row) => {
 		const viewButton = row.querySelector('a.btn-link');
@@ -72,7 +71,6 @@ async function checkAllCoursesForOnDuty() {
 
 	const onDutyEntries = [];
 
-	// Check a single course
 	async function checkCourse(course) {
 		log(`Checking course: ${course.courseCode} - ${course.courseTitle}`);
 
@@ -95,10 +93,10 @@ async function checkAllCoursesForOnDuty() {
 
 		const html = await response.text();
 
-		const tempDiv = document.createElement('div');
-		tempDiv.innerHTML = html;
+		const parser = new DOMParser();
+		const doc = parser.parseFromString(html, 'text/html');
 
-		const attendanceRows = tempDiv.querySelectorAll('.table tbody tr');
+		const attendanceRows = doc.querySelectorAll('.table tbody tr');
 		log(
 			`Found ${attendanceRows.length} attendance entries for ${course.courseCode}`,
 		);
@@ -115,7 +113,6 @@ async function checkAllCoursesForOnDuty() {
 
 			if (status && status.includes('On Duty')) {
 				const duration = getDuration(dayTime);
-				// OD count: less than 60 minutes(theory slot) => 1, 60 or more minutes(labs) => 2.
 				const odCount = duration < 60 ? 1 : 2;
 
 				onDutyEntries.push({
@@ -159,7 +156,13 @@ async function checkAllCoursesForOnDuty() {
 	return onDutyEntries;
 }
 
-// Display the OD table
+function createStyledCell(text, centered) {
+	const td = document.createElement('td');
+	if (centered) td.style.textAlign = 'center';
+	td.textContent = text;
+	return td;
+}
+
 function displayOnDutyTable(entries) {
 	const container = document.querySelector('.table-responsive');
 
@@ -198,13 +201,11 @@ function displayOnDutyTable(entries) {
 	heading.classList.add('mb-2', 'text-primary');
 	tableContainer.appendChild(heading);
 
-	// Calculate total OD count first
 	let totalOdCount = 0;
 	entries.forEach((entry) => {
 		totalOdCount += entry.odCount;
 	});
 
-	// Add OD count above the table
 	const odCountDiv = document.createElement('div');
 	odCountDiv.className = 'mb-3 p-3';
 	odCountDiv.style.cssText = `
@@ -216,50 +217,51 @@ function displayOnDutyTable(entries) {
         font-weight: bold;
         color: #007bff;
     `;
-	odCountDiv.innerHTML = `Total OD Count: <span style="color: #dc3545; font-size: 22px;">${totalOdCount}</span><br><small style="color: #6c757d; font-weight: normal;">The total number of ODs includes all types combined (SWC, School, CDC, etc.), be careful.</small>`;
+	const odLabel = document.createTextNode('Total OD Count: ');
+	odCountDiv.appendChild(odLabel);
+	const odCountSpan = document.createElement('span');
+	odCountSpan.style.cssText = 'color: #dc3545; font-size: 22px;';
+	odCountSpan.textContent = String(totalOdCount);
+	odCountDiv.appendChild(odCountSpan);
+	odCountDiv.appendChild(document.createElement('br'));
+	const odNote = document.createElement('small');
+	odNote.style.cssText = 'color: #6c757d; font-weight: normal;';
+	odNote.textContent = 'The total number of ODs includes all types combined (SWC, School, CDC, etc.), be careful.';
+	odCountDiv.appendChild(odNote);
 	tableContainer.appendChild(odCountDiv);
 
 	const table = document.createElement('table');
 	table.id = 'onDutyTable';
 	table.className = 'table table-bordered table-striped';
 
-	table.innerHTML = `
-      <thead class="thead-dark">
-        <tr>
-          <th style="text-align: center;">#</th>
-          <th style="text-align: center;">Course Code</th>
-          <th style="text-align: center;">Course Title</th>
-          <th style="text-align: center;">Slot</th>
-          <th style="text-align: center;">Date</th>
-          <th style="text-align: center;">Day/Time</th>
-          <th style="text-align: center;">Attendance Status</th>
-          <th style="text-align: center;">OD Count</th>
-        </tr>
-      </thead>
-      <tbody>
-      </tbody>
-    `;
+	const thead = document.createElement('thead');
+	thead.className = 'thead-dark';
+	const headerRow = document.createElement('tr');
+	['#', 'Course Code', 'Course Title', 'Slot', 'Date', 'Day/Time', 'Attendance Status', 'OD Count'].forEach((label) => {
+		const th = document.createElement('th');
+		th.style.textAlign = 'center';
+		th.textContent = label;
+		headerRow.appendChild(th);
+	});
+	thead.appendChild(headerRow);
+	table.appendChild(thead);
 
-	const tbody = table.querySelector('tbody');
-
+	const tbody = document.createElement('tbody');
 	entries.forEach((entry, index) => {
 		const row = document.createElement('tr');
-		row.innerHTML = `
-        <td style="text-align: center;">${index + 1}</td>
-        <td style="text-align: center;">${entry.courseCode}</td>
-        <td>${entry.courseTitle}</td>
-        <td style="text-align: center;">${entry.slot}</td>
-        <td style="text-align: center;">${entry.date}</td>
-        <td style="text-align: center;">${entry.dayTime}</td>
-        <td style="text-align: center;">${entry.status}</td>
-        <td style="text-align: center;">${entry.odCount}</td>
-      `;
+		row.appendChild(createStyledCell(String(index + 1), true));
+		row.appendChild(createStyledCell(entry.courseCode, true));
+		row.appendChild(createStyledCell(entry.courseTitle, false));
+		row.appendChild(createStyledCell(entry.slot, true));
+		row.appendChild(createStyledCell(entry.date, true));
+		row.appendChild(createStyledCell(entry.dayTime, true));
+		row.appendChild(createStyledCell(entry.status, true));
+		row.appendChild(createStyledCell(String(entry.odCount), true));
 		tbody.appendChild(row);
 	});
-
+	table.appendChild(tbody);
 	tableContainer.appendChild(table);
 
-	// Add Course-Wise OD button below the table
 	const courseWiseButtonContainer = document.createElement('div');
 	courseWiseButtonContainer.style.cssText = `
 		margin: 15px 0 10px 0;
@@ -267,7 +269,7 @@ function displayOnDutyTable(entries) {
 	`;
 
 	const courseWiseButton = document.createElement('button');
-	courseWiseButton.innerHTML = 'Check Course-Wise OD';
+	courseWiseButton.textContent = 'Check Course-Wise OD';
 	courseWiseButton.style.cssText = `
 		background-color: #28a745;
 		color: white;
@@ -297,9 +299,7 @@ function displayOnDutyTable(entries) {
 	container.appendChild(tableContainer);
 }
 
-// Display course-wise OD summary table
 function displayCourseWiseTable(entries) {
-	// First, get all courses from the attendance table
 	const allCourses = [];
 	document.querySelectorAll('.table tbody tr').forEach((row) => {
 		const viewButton = row.querySelector('a.btn-link');
@@ -317,7 +317,6 @@ function displayCourseWiseTable(entries) {
 					?.textContent.trim();
 				const slotName = match[2];
 
-				// Determine if it's a lab or theory course
 				const isLab =
 					courseCode.endsWith('L') ||
 					(slotName && slotName.includes('L'));
@@ -334,10 +333,8 @@ function displayCourseWiseTable(entries) {
 		}
 	});
 
-	// Group entries by course code and type (theory/lab) and calculate total OD count per course
 	const courseWiseData = {};
 
-	// Initialize all courses with 0 OD count
 	allCourses.forEach((course) => {
 		if (!courseWiseData[course.courseKey]) {
 			courseWiseData[course.courseKey] = {
@@ -348,7 +345,6 @@ function displayCourseWiseTable(entries) {
 				odCount: 0,
 			};
 		}
-		// Add slot if it exists
 		if (
 			course.slotName &&
 			course.slotName !== 'undefined' &&
@@ -358,9 +354,7 @@ function displayCourseWiseTable(entries) {
 		}
 	});
 
-	// Now add OD counts from actual entries
 	entries.forEach((entry) => {
-		// Determine if it's a lab or theory course
 		const isLab =
 			entry.courseCode.endsWith('L') ||
 			(entry.slot && entry.slot.includes('L'));
@@ -368,7 +362,6 @@ function displayCourseWiseTable(entries) {
 		const courseKey = `${entry.courseCode}_${courseType}`;
 
 		if (courseWiseData[courseKey]) {
-			// Only add slot if it exists and is not undefined/null
 			if (
 				entry.slot &&
 				entry.slot !== 'undefined' &&
@@ -380,20 +373,17 @@ function displayCourseWiseTable(entries) {
 		}
 	});
 
-	// Convert to array and sort by course code, then by type (Theory first, then Lab)
 	const courseWiseArray = Object.values(courseWiseData)
 		.map((course) => ({
 			...course,
 			slots:
 				course.slots.size > 0
 					? Array.from(course.slots).join(', ')
-					: 'N/A', // Handle empty slots
+					: 'N/A',
 		}))
 		.sort((a, b) => {
-			// First sort by course code
 			const codeCompare = a.courseCode.localeCompare(b.courseCode);
 			if (codeCompare !== 0) return codeCompare;
-			// Then sort by type (Theory before Lab)
 			return a.courseType.localeCompare(b.courseType);
 		});
 
@@ -403,7 +393,6 @@ function displayCourseWiseTable(entries) {
 		return;
 	}
 
-	// Remove existing course-wise table if any
 	const existingCourseWiseTable = document.getElementById(
 		'courseWiseTableContainer',
 	);
@@ -424,46 +413,47 @@ function displayCourseWiseTable(entries) {
 	table.id = 'courseWiseTable';
 	table.className = 'table table-bordered table-striped';
 
-	table.innerHTML = `
-		<thead class="thead-dark">
-			<tr>
-				<th style="text-align: center;">#</th>
-				<th style="text-align: center;">Course Code</th>
-				<th style="text-align: center;">Course Title</th>
-				<th style="text-align: center;">Slot</th>
-				<th style="text-align: center;">OD Count</th>
-			</tr>
-		</thead>
-		<tbody>
-		</tbody>
-	`;
+	const thead = document.createElement('thead');
+	thead.className = 'thead-dark';
+	const headerRow = document.createElement('tr');
+	['#', 'Course Code', 'Course Title', 'Slot', 'OD Count'].forEach((label) => {
+		const th = document.createElement('th');
+		th.style.textAlign = 'center';
+		th.textContent = label;
+		headerRow.appendChild(th);
+	});
+	thead.appendChild(headerRow);
+	table.appendChild(thead);
 
-	const tbody = table.querySelector('tbody');
+	const tbody = document.createElement('tbody');
 
 	courseWiseArray.forEach((course, index) => {
 		const row = document.createElement('tr');
-		const odCountStyle =
-			course.odCount === 0
-				? 'color: #000000'
-				: 'font-weight: bold; color: #28a745';
-		row.innerHTML = `
-			<td style="text-align: center;">${index + 1}</td>
-			<td style="text-align: center;">${course.courseCode}</td>
-			<td>${course.courseTitle}</td>
-			<td style="text-align: center;">${course.slots}</td>
-			<td style="text-align: center;"><span style="${odCountStyle};">${course.odCount}</span></td>
-		`;
+		row.appendChild(createStyledCell(String(index + 1), true));
+		row.appendChild(createStyledCell(course.courseCode, true));
+		row.appendChild(createStyledCell(course.courseTitle, false));
+		row.appendChild(createStyledCell(course.slots, true));
+
+		const odTd = document.createElement('td');
+		odTd.style.textAlign = 'center';
+		const odSpan = document.createElement('span');
+		odSpan.style.cssText = course.odCount === 0
+			? 'color: #000000'
+			: 'font-weight: bold; color: #28a745';
+		odSpan.textContent = String(course.odCount);
+		odTd.appendChild(odSpan);
+		row.appendChild(odTd);
+
 		tbody.appendChild(row);
 	});
 
+	table.appendChild(tbody);
 	tableContainer.appendChild(table);
 	container.appendChild(tableContainer);
 }
 
-// Make the function globally available for automatic execution
 window.checkAllCoursesForOnDuty = checkAllCoursesForOnDuty;
 
-// Keep the Chrome message listener for backward compatibility (if needed from popup)
 extApi.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	if (request.action === 'generateODSummary') {
 		checkAllCoursesForOnDuty()
