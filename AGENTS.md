@@ -27,4 +27,12 @@ The tests require `jsdom` (installed via `npm install` in the workspace root). T
 - There is no `package.json` checked into the repo (it is gitignored). The update script creates one and installs `jsdom` on every run.
 - There is no lint tool configured in the project. The test suite covers syntax validation and security pattern checks which serve a similar purpose.
 - There is no build step. The extension loads raw JS files directly.
-- Full end-to-end testing of content scripts requires access to a VTOP portal (`vtop.vit.ac.in`, `vtopcc.vit.ac.in`, or `vtop.vitbhopal.ac.in`) with university credentials, which is not available in the cloud environment.
+- Full end-to-end testing of content scripts requires access to a VTOP portal (`vtop.vit.ac.in`, `vtopcc.vit.ac.in`, or `vtop.vitbhopal.ac.in`) with valid university credentials.
+
+### VTOP login flow (vtopcc.vit.ac.in)
+
+- The correct flow is: navigate to `/vtop/` -> click "Student" card -> login form appears with simple text captcha.
+- Navigating directly to `/vtop/login` sometimes skips the simple captcha and uses Google reCAPTCHA instead, which the extension cannot solve.
+- The extension's captcha auto-solver (`captchaparser.js`) works correctly on the simple text captcha when the full Student selection flow is followed.
+- Chrome must be started with `--disable-blink-features=AutomationControlled` to reduce bot detection that escalates to reCAPTCHA challenges.
+- After too many failed login attempts, the VTOP account locks and requires password reset via "Forgot Password".
